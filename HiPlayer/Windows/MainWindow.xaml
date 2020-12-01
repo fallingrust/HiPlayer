@@ -1,0 +1,416 @@
+﻿<Window x:Class="HiPlayer.Windows.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wpf="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+        xmlns:viewmodel="clr-namespace:HiPlayer.ViewModel"
+        xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        WindowStyle="None"
+        Padding="0"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        AllowsTransparency="True"     
+        Title="MainWindow" 
+        Width="1144" Height="820"
+        FontFamily="SimSun">
+
+    <Window.DataContext>
+        <viewmodel:MainViewModel/>
+    </Window.DataContext>
+  
+    <Grid ShowGridLines="False" Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="64"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="br_top"
+                Grid.Row="0" 
+                Background="#383A42"
+                BorderBrush="Transparent"
+                MouseMove="br_top_MouseMove">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <DockPanel Grid.Column="0" LastChildFill="False">
+                    <Image x:Name="img_tittle" Margin="5" Source="{StaticResource di_tittle}"/>
+                </DockPanel>
+                <Label x:Name="lb_curPlayName" 
+                       Content="Test.mp4" 
+                       FontSize="16"
+                       Grid.Column="1" 
+                       HorizontalAlignment="Center"
+                       HorizontalContentAlignment="Center" 
+                       Foreground="White"/>
+                <DockPanel Grid.Column="2" LastChildFill="False">
+                    <Button  x:Name="close" 
+                             Style="{DynamicResource style_btn_close}"
+                             Width="16"                         
+                             Height="16" 
+                             Click="close_Click"
+                             Margin="0 0 10 0"
+                             DockPanel.Dock="Right"/>
+
+                    <Button  x:Name="btn_max" 
+                             Style="{DynamicResource style_btn_max}"
+                             Width="16"                         
+                             Height="16" 
+                             Click="btn_max_Click"
+                             Margin="0 0 10 0"
+                             DockPanel.Dock="Right"/>
+                    <Button  x:Name="btn_min" 
+                             Style="{DynamicResource style_btn_min}"
+                             Width="16"  
+                             Click="btn_min_Click"
+                             Height="16" 
+                             Margin="0 0 10 0"
+                             DockPanel.Dock="Right"/>
+                </DockPanel>
+             
+            </Grid>
+
+        </Border>
+        <Border x:Name="br_center" Grid.Row="1" BorderThickness="1 0 1 0" BorderBrush="#2B2D33" >
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Background="#000201">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="28"/>
+                    </Grid.RowDefinitions>
+                    <wpf:VideoView x:Name="vv_video" Panel.ZIndex="1">
+                        <Behaviors:Interaction.Triggers>
+                            <Behaviors:EventTrigger EventName="Loaded">
+                                <Behaviors:InvokeCommandAction
+                                         CommandParameter="{Binding ElementName=vv_video}"
+                                         Command="{Binding VideoViewLoaded}" />
+                            </Behaviors:EventTrigger>
+                        </Behaviors:Interaction.Triggers>
+                        <Grid Visibility="{Binding IsPlaying, Converter={StaticResource boolToInvisible}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Border Background="Transparent" 
+                                BorderBrush="Transparent"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Source="{StaticResource di_tittle}"
+                                       Width="42" Height="42"                       
+                                       HorizontalAlignment="Right" 
+                                       VerticalAlignment="Bottom"/>
+                                    <Label Content="HiPlayer"
+                                       Grid.Column="1" 
+                                       FontSize="30"                                 
+                                       Foreground="#0698FB" 
+                                       HorizontalAlignment="Left" 
+                                       VerticalAlignment="Bottom"
+                                       FontWeight="Bold"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="Transparent" 
+                                Grid.Row="1" 
+                                Height="50" Width="150" 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Top"
+                                Margin="0 10 0 0"
+                                BorderThickness="1" 
+                                BorderBrush="#626463">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Image Width="35" Height="35" Source="{StaticResource di_folder_gray}"/>
+                                    <Button x:Name="btn_openFile" 
+                                        Grid.Column="1" 
+                                        FontSize="16"
+                                        Command="{Binding OpenFileCommand}"
+                                        Content="打开文件" 
+                                        Style="{StaticResource style_btn_openFile }"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </wpf:VideoView>
+                    <DockPanel Background="#191919"
+                               Grid.Row="1"
+                               Visibility="{Binding IsPlaying, Converter={StaticResource boolToVisible}}">
+                        <Label x:Name="lb_curTimeSpan"
+                               VerticalContentAlignment="Center"
+                               Foreground="White"
+                               Content="{Binding ElementName=slider_duration, Path=Value, Converter={StaticResource secondsToTimeSpan}}"/>
+                        <Label x:Name="lb_totalTimeSpan"
+                               DockPanel.Dock="Right"
+                               VerticalContentAlignment="Center"
+                               Foreground="White"
+                               Content="{Binding ElementName=slider_duration, Path=Maximum, Converter={StaticResource secondsToTimeSpan}}"/>
+                        <Slider x:Name="slider_duration"                           
+                                Margin="10 0 10 0"
+                                IsSnapToTickEnabled="True"
+                                Style="{StaticResource SliderStyle1}" 
+                                HorizontalAlignment="Stretch" 
+                                Value="{Binding CurDuration}"
+                                Minimum="0"
+                                Thumb.DragStarted="slider_duration_DragStarted"
+                                Thumb.DragCompleted="slider_duration_DragCompleted"
+                                Maximum="{Binding TotalDuration}" 
+                                VerticalAlignment="Center">
+                        </Slider>
+                    </DockPanel>
+                </Grid>
+                <Border x:Name="br_menu" Grid.Column="2" Width="320" Background="#2B2D33">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=tgb_menu, Path=IsChecked}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard x:Name="bs_menushow" Storyboard="{StaticResource sb_menushow}"/>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions >
+                                        <RemoveStoryboard BeginStoryboardName="bs_menushow"/>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ElementName=tgb_menu, Path=IsChecked}" Value="False">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard x:Name="bs_menuhide" Storyboard="{StaticResource sb_menuhide}"/>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions >
+                                        <RemoveStoryboard BeginStoryboardName="bs_menuhide"/>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label Content="播放列表" 
+                               Foreground="#0698FB"
+                               FontSize="20"
+                               BorderBrush="#0698FB"
+                               BorderThickness="0 0 0 1"
+                               HorizontalContentAlignment="Center"
+                               VerticalContentAlignment="Center" FontFamily="SimSun"/>
+                        <DockPanel LastChildFill="True" Grid.Row="1" Background="#191919">
+                            <RadioButton x:Name="rb_allResource"
+                                         IsChecked="True"
+                                         Command="{Binding ChangeFilterCommand}"
+                                         CommandParameter="{Binding ElementName=rb_allResource}"
+                                         Style="{DynamicResource RadioButtonStyle}"                                        
+                                         Content="全部"/>
+
+                            <RadioButton x:Name="rb_urlResource" 
+                                         Content="链接"  
+                                         Command="{Binding ChangeFilterCommand}"
+                                         CommandParameter="{Binding ElementName=rb_urlResource}"
+                                         Style="{DynamicResource RadioButtonStyle}"    />
+                            <RadioButton x:Name="rb_localResource"
+                                         Content="本地"  
+                                         Command="{Binding ChangeFilterCommand}"
+                                         CommandParameter="{Binding ElementName=rb_localResource}"
+                                         Style="{DynamicResource RadioButtonStyle}"    />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="btn_fileToList" 
+                                        Grid.Column="0"                                       
+                                        Command="{Binding OpenFileCommand}"
+                                        Width="14" Height="14" 
+                                        ToolTip="添加到列表" 
+                                        Style="{StaticResource style_btn_addToList }" />
+                                <Button x:Name="btn_urlToList" 
+                                        Grid.Column="1"                                       
+                                        Command="{Binding OpenUrlCommand}"
+                                        Width="14" Height="14" 
+                                        ToolTip="添加到列表" 
+                                        Style="{StaticResource style_btn_openUrl}" />
+                                <Button x:Name="btn_removeFromList"
+                                        Grid.Column="2"
+                                        Width="14" Height="14" 
+                                        ToolTip="从列表移除" 
+                                        Style="{StaticResource style_btn_removeFromList}" />
+                                <Button x:Name="btn_listRecyle"                                        
+                                        Grid.Column="3"
+                                        Width="14" Height="14" 
+                                        ToolTip="列表循环"
+                                        Style="{StaticResource style_btn_listRecyle}" />
+                            </Grid>
+
+                        </DockPanel>
+                        <ListView x:Name="lvt_resource" 
+                                  ItemsSource="{Binding ResourceList}" 
+                                  ItemContainerStyle="{DynamicResource ListViewItemContainerStyle1}" 
+                                  ItemTemplate="{DynamicResource ListViewItemTemplate1}" 
+                                  Background="Transparent"
+                                  HorizontalContentAlignment="Stretch"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"                      
+                                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                  BorderBrush="Transparent"
+                                  Grid.Row="2">
+                           
+                        </ListView>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        <Border x:Name="br_bottom" Grid.Row="2" Background="#393B42">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button x:Name="btn_openFolder"  
+                            Width="24" Height="24"
+                            Margin="10 0 0 0" 
+                            Command="{Binding OpenFileCommand}"
+                            Style="{StaticResource style_btn_openFolder}"/>
+                    <Image Margin="20 0 0 0" 
+                           VerticalAlignment="Center" 
+                           HorizontalAlignment="Left" 
+                           Width="24" Height="24" 
+                           Source="{StaticResource di_volume}"/>
+                    <Slider x:Name="slider_Volum" 
+                            DockPanel.Dock="Right"
+                            IsSnapToTickEnabled="True"
+                            Margin="10 0 0 0"
+                            Style="{StaticResource SliderStyle1}" 
+                            HorizontalAlignment="Stretch" 
+                            Thumb.DragDelta="slider_Volum_DragDelta"
+                            Value="100"
+                            Minimum="0"
+                            Maximum="100" 
+                            VerticalAlignment="Center"
+                            Width="150"  />
+                </StackPanel>
+                <Grid Grid.Column="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="btn_equalizer" 
+                            Width="24" Height="24" 
+                            HorizontalAlignment="Right" 
+                            Grid.Column="0" 
+                            Style="{StaticResource style_btn_equalizer}"/>
+                    <Button x:Name="btn_lastItem"
+                            Width="24" Height="24"
+                            Grid.Column="1" 
+                            HorizontalAlignment="Right"  
+                            Style="{StaticResource style_btn_lastItem}"/>
+                    <ToggleButton Template="{DynamicResource ToggleButtonTemplate}"
+                                  x:Name="tgb_play"
+                                  IsChecked="{Binding IsPlaying}"
+                                  Grid.Column="2"
+                                  Command="{Binding PlayCommand}"
+                                  CommandParameter="{Binding ElementName=tgb_play}"
+                                  Width="48" Height="48"                                                                                                                                   
+                                  BorderBrush="Transparent"
+                                  BorderThickness="0">
+                        <ToggleButton.Style>
+                            <Style TargetType="ToggleButton" >
+                               
+                                <Style.Triggers>
+                                    <Trigger Property="IsChecked" Value="True">
+                                        <Setter  Property="BorderBrush" Value="Transparent"/>
+                                        <Setter  Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="{StaticResource di_pause}"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsChecked" Value="False">
+                                        <Setter  Property="BorderBrush" Value="Transparent"/>
+                                        <Setter  Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="{StaticResource di_play}"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsChecked" Value="{x:Null}">
+                                        <Setter  Property="BorderBrush" Value="Transparent"/>
+                                        <Setter  Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Background">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="{StaticResource di_play}"/>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ToggleButton.Style>
+
+                    </ToggleButton>
+                    <Button x:Name="btn_nextItem"
+                            Width="24" Height="24"
+                            Grid.Column="3" 
+                            HorizontalAlignment="Left"  
+                            Style="{StaticResource style_btn_nextItem}"/>
+                    <Button x:Name="btn_cut"
+                            Width="24" Height="24"
+                            Grid.Column="4"                             
+                            HorizontalAlignment="Left"  
+                            Style="{StaticResource style_btn_cut}"/>
+                </Grid>
+                <DockPanel Grid.Column="2">
+                    <Border
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Center"
+                        Padding="10 5 10 5"
+                        Margin="0 0 20 0"
+                        Background="Transparent" 
+                        BorderBrush="#191919" 
+                        BorderThickness="1" 
+                        CornerRadius="2 2 2 2">
+                        <ToggleButton x:Name="tgb_menu"    
+                                      Template="{DynamicResource ToggleButtonTemplate}"
+                                      Content="列表"
+                                      IsChecked="True"
+                                      VerticalAlignment="Center"                                     
+                                      Background="Transparent"                                                                                                                                                                  
+                                      BorderBrush="Transparent"
+                                      BorderThickness="0">
+                            <ToggleButton.Style>
+                                <Style TargetType="ToggleButton">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter Property="Foreground" Value="#0698FB"/>
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="False">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ToggleButton.Style>
+                        </ToggleButton>
+                    </Border>
+                </DockPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
